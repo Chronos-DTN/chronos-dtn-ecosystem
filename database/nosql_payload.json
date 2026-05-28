@@ -1,0 +1,66 @@
+{
+  "comment_header": "Este documento JSON representa um exemplo prático NoSQL de um Bundle do protocolo DTN (Store-and-Forward) trafegando uma transação financeira assinada digitalmente.",
+  
+  "dtn_bundle_header": {
+    "bundle_id": "BP-20260528-199402-0045",
+    "source_node": {
+      "node_id": 1,
+      "node_name": "Houston Deep Space Station",
+      "location": "Terra - Texas, EUA"
+    },
+    "destination_node": {
+      "node_id": 3,
+      "node_name": "Artemis Base Alpha",
+      "location": "Lua - Cratera Shackleton"
+    },
+    "protocol_version": "RFC-9171-BPv7",
+    "transmission_priority": "HIGH_2",
+    "hop_limit": 10,
+    "current_hop_count": 2,
+    "size_bytes": 1024,
+    "timestamps": {
+      "created_epoch_ms": 1779997500000,
+      "created_iso": "2026-05-28T17:05:00.000Z",
+      "expiry_epoch_ms": 1780026300000,
+      "expiry_iso": "2026-05-28T21:05:00.000Z",
+      "ttl_seconds": 28800
+    }
+  },
+  
+  "financial_payload": {
+    "transaction_header": {
+      "transaction_id": 9004,
+      "operation_type": "INTERPLANETARY_ASSET_TRANSFER",
+      "reconciliation_policy": "ASYNC_SETTLEMENT_POST_CONTACT"
+    },
+    "transfer_details": {
+      "source_account": {
+        "account_id": 1007,
+        "holder": "SpaceX DeepSpace Division",
+        "currency": "USD"
+      },
+      "destination_account": {
+        "account_id": 1004,
+        "holder": "Shackleton Energy Corp",
+        "currency": "LUN"
+      },
+      "exchange_rate": {
+        "rate_usd_to_lun": 1.2500,
+        "fee_applied_lun": 50.00
+      },
+      "amount_usd": 450000.00,
+      "amount_lun_credited": 562450.00
+    },
+    "metadata": {
+      "purpose": "Lunar Propellant and Oxygen supplies - Artemis mission phase III",
+      "contract_reference": "NASA-SPX-LUN-0994-2026"
+    }
+  },
+  
+  "cryptographic_signatures": {
+    "payload_hash_sha256": "d4b5fef2e83120abfec39e831128ae302bcf928abfeee911abfbe839de8b7102",
+    "signature_algorithm": "SHA256withECDSA",
+    "signature_key_id": "KID-HOU-NCC-PUB-098",
+    "node_signature": "MEYCIQDR3mX+L4+nK6G1/VjS1hRzWl9i91V5aHq3fV5Z/7K98gIhAOT7w5l8a2a7tWf7b9fC3c8c7c2c1a8a9a8f2f2e3e9d8c8b"
+  }
+}

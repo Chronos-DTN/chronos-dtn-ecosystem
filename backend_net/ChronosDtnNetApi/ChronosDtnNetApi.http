@@ -1,0 +1,6 @@
+@ChronosDtnNetApi_HostAddress = http://localhost:5056
+
+GET {{ChronosDtnNetApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

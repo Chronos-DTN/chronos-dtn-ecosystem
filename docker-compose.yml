@@ -1,0 +1,85 @@
+
+# Por que: Declara a colecao de containers isolados que compoem o ecossistema ChronosDTN.
+services:
+
+  # Por que: Servico do banco de dados relacional Oracle Database.
+  chronos-db:
+    # Por que: Imagem leve oficial do Oracle Database 23ai Free, otimizada para inicializacao rapida.
+    image: gvenzl/oracle-free:23-slim-faststart
+    # Por que: Nome amigavel do container para facil identificacao e monitoramento.
+    container_name: chronos-db
+    # Por que: Variaveis de ambiente para configurar a senha do SYS/SYSTEM e o nome do banco.
+    environment:
+      # Por que: Senha mestre administrativa usada para o container e banco de dados.
+      - ORACLE_PASSWORD=ChronosPass123!
+    # Por que: Mapeia as portas do host local para a porta padrao do Listener do Oracle (1521).
+    ports:
+      - "1521:1521"
+    # Por que: Monta volumes persistentes e scripts de inicializacao automatica.
+    volumes:
+      # Por que: Persiste os arquivos fisicos do banco de dados localmente para evitar perda de dados.
+      - oracle_data:/opt/oracle/oradata
+      # Por que: Monta o script de criacao de usuario no diretorio de boot do container (executado como SYS).
+      - ./infra/init_db/00_init_user.sql:/container-entrypoint-initdb.d/00_init_user.sql
+      # Por que: Monta o script bash que roda os scripts SQL como usuario CHRONOS.
+      - ./infra/init_db/01_setup.sh:/container-entrypoint-initdb.d/01_setup.sh
+      # Por que: Monta a pasta de scripts do banco em um diretorio interno para acesso do script de setup.
+      - ./database:/opt/oracle/scripts
+    # Por que: Valida a saude do banco rodando uma query basica antes de liberar outros servicos.
+    healthcheck:
+      # Por que: Executa o sqlplus localmente no container para testar se a conexao administrativa responde.
+      test: ["CMD-SHELL", "echo 'SELECT 1 FROM DUAL;' | sqlplus -s / as sysdba"]
+      # Por que: Tempo entre execucoes do teste de saude.
+      interval: 10s
+      # Por que: Tempo limite de espera por resposta do teste.
+      timeout: 5s
+      # Por que: Numero maximo de tentativas falhas antes de marcar o servico como doente.
+      retries: 15
+      # Por que: Janela inicial para dar tempo do banco carregar os arquivos de dados na primeira execucao.
+      start_period: 40s
+    # Por que: Vincula o container a rede interna privada do ecossistema.
+    networks:
+      - chronos-net
+
+  # Por que: Servico do microservico Java Spring Boot que roda o Gateway Financeiro principal.
+  chronos-api:
+    # Por que: Build da imagem customizada a partir do Dockerfile na pasta do backend.
+    build:
+      context: ./backend_java
+      dockerfile: Dockerfile
+    # Por que: Nome amigavel do container do gateway.
+    container_name: chronos-api
+    # Por que: Mapeia a porta HTTP padrao externa para a porta HTTP interna do Spring Boot.
+    ports:
+      - "8080:8080"
+    # Por que: Garante que a API so inicialize apos o banco de dados estar saudavel e pronto para conexoes.
+    depends_on:
+      chronos-db:
+        condition: service_healthy
+    # Por que: Injeta variaveis de ambiente substituindo as configuracoes padrao de H2 por Oracle.
+    environment:
+      # Por que: URL JDBC apontando para a base plugavel FREEPDB1 no container chronos-db.
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@chronos-db:1521/FREEPDB1
+      # Por que: Usuario de banco de dados do ecossistema ChronosDTN.
+      - SPRING_DATASOURCE_USERNAME=CHRONOS
+      # Por que: Senha de acesso do usuario do ecossistema.
+      - SPRING_DATASOURCE_PASSWORD=ChronosPass123!
+      # Por que: Classe do driver JDBC para conexao com Oracle Database.
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=oracle.jdbc.OracleDriver
+      # Por que: Dialeto Hibernate correspondente a versao do Oracle.
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.OracleDialect
+      # Por que: Desativa o ddl-auto do Hibernate já que o schema ja eh gerado pelos scripts DDL na carga inicial.
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+    # Por que: Vincula o container a rede interna privada para comunicacao direta com o banco.
+    networks:
+      - chronos-net
+
+# Por que: Define a rede privada do tipo bridge usada pelos containers para comunicacao interna por nome.
+networks:
+  chronos-net:
+    driver: bridge
+
+# Por que: Define os volumes nomeados persistidos no Host Docker.
+volumes:
+  oracle_data:
+    driver: local

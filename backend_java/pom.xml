@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Por que: Define a tag raiz do Maven e as configurações de esquema XML para build modular do Java. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <!-- Por que: Versão do modelo de objeto do projeto Maven. -->
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- Por que: Configura o Spring Boot Parent para herdar configurações de compilação e versões de plugins padrão. -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    
+    <!-- Por que: Informações básicas de identificação do artefato do projeto. -->
+    <groupId>br.com.fiap</groupId>
+    <artifactId>chronosdtn</artifactId>
+    <version>1.0.0</version>
+    <name>chronosdtn</name>
+    <description>Gateway Financeiro e Roteador Espacial Terra-Lua - FIAP Global Solution</description>
+    
+    <!-- Por que: Configura variáveis do Maven, travando a versão do Java e dependências adicionais. -->
+    <properties>
+        <!-- Por que: Usamos o Java 17 para aproveitar records imutáveis, switch expressions e suporte de longo prazo (LTS). -->
+        <java.version>17</java.version>
+        <!-- Por que: Versão estável e segura para a API de tokens JWT. -->
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+    
+    <!-- Por que: Bloco que agrupa todas as bibliotecas necessárias para rodar o gateway de rede e finanças. -->
+    <dependencies>
+        <!-- Por que: Habilita o desenvolvimento de APIs REST baseadas em Spring MVC e servidor Tomcat embarcado. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        
+        <!-- Por que: Adiciona o suporte a persistência ORM com Hibernate e comunicação via JPA. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        
+        <!-- Por que: Habilita o Spring Security para autenticação e controle de acesso baseado em roles (RBAC). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        
+        <!-- Por que: Provê validações declarativas robustas de payloads (ex: @NotNull, @Size, @Positive). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        
+        <!-- Por que: Adiciona suporte a HATEOAS, permitindo expor hiperlinks REST autoexplicativos em nossos recursos. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+        
+        <!-- Por que: Driver do Oracle Database para permitir conexão real com o banco projetado na Fase 1. -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Por que: Banco de dados em memória de alta performance para permitir testes rápidos sem necessitar de Oracle local. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Por que: API do JSON Web Token para permitir geração e assinatura stateless de tokens de sessão. -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        
+        <!-- Por que: Implementação em tempo de execução dos algoritmos criptográficos do JWT. -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Por que: Habilita suporte a serialização/deserialização do payload do JWT com o Jackson. -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Por que: Integração automática com o Swagger para documentação OpenAPI v3. -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        
+        <!-- Por que: Reduz código boilerplate das entidades (getters, setters, construtores) usando anotações. -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
+        <!-- Por que: Pacote de testes padrão do Spring Boot. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Por que: Pacote de testes específico para validar rotas e regras do Spring Security. -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <!-- Por que: Define o plugin de build do Maven para empacotamento correto de JARs executáveis. -->
+    <build>
+        <plugins>
+            <!-- Por que: Empacota a aplicação Spring Boot em um fat jar contendo todas as dependências. -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Por que: Exclui o Lombok da compilação final já que ele serve apenas em tempo de escrita de código. -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>

@@ -1,0 +1,66 @@
+# Por que: Configurações do servidor web HTTP embarcado
+server:
+  # Por que: Expõe a API na porta padrão 8080
+  port: 8080
+
+# Por que: Agrupa as configurações centrais do framework Spring
+spring:
+  # Por que: Define o nome do microserviço para logs e telemetria
+  application:
+    name: chronosdtn
+  
+  # Por que: Configurações da fonte de dados de persistência
+  datasource:
+    # Por que: Usamos H2 em memória para permitir execução imediata sem requerer Oracle local
+    url: jdbc:h2:mem:chronosdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE
+    # Por que: Driver JDBC para o banco H2
+    driver-class-name: org.h2.Driver
+    # Por que: Usuário padrão de desenvolvimento
+    username: sa
+    # Por que: Senha em branco padrão
+    password: ""
+  
+  # Por que: Configurações do console gráfico de monitoramento do H2
+  h2:
+    console:
+      # Por que: Permite abrir o gerenciador de banco no navegador para depuração
+      enabled: true
+      # Por que: Define a rota de acesso ao console H2
+      path: /h2-console
+      # Por que: Desativa proteção de frame para permitir exibição do console H2 na UI do browser
+      settings:
+        web-allow-others: true
+  
+  # Por que: Configurações do JPA e do framework ORM Hibernate
+  jpa:
+    # Por que: Define a sintaxe de banco para H2
+    database-platform: org.hibernate.dialect.H2Dialect
+    # Por que: Cria e destrói as tabelas na inicialização com base nas entidades JPA mapeadas
+    hibernate:
+      ddl-auto: create-drop
+    # Por que: Habilita logs detalhados para exibir as queries SQL geradas no terminal
+    show-sql: true
+    properties:
+      hibernate:
+        # Por que: Formata o SQL exibido no console para melhor legibilidade
+        format_sql: true
+
+# Por que: Configurações customizadas do ecossistema do gateway financeiro
+chronos:
+  security:
+    jwt:
+      # Por que: Chave secreta de 256 bits codificada em base64 usada para assinar os tokens JWT (imprescindível ser forte)
+      secret: dGhpc2lzYW5leHRyZW1lbHlzdHJvbmdzZWNyZXRrZXlmb3JjaHJvbm9zZHRudGVycmFsdW5hZ2F0ZXdheTIwMjY=
+      # Por que: Tempo de expiração do token (8 horas em milissegundos = 28800000)
+      expiration: 28800000
+
+# Por que: Configurações da biblioteca OpenAPI / Swagger para documentação interativa
+springdoc:
+  api-docs:
+    # Por que: Rota para baixar o arquivo JSON com as rotas OpenAPI
+    path: /v3/api-docs
+  swagger-ui:
+    # Por que: Rota do painel Swagger para testar as rotas da API
+    path: /swagger-ui.html
+    # Por que: Ordena as rotas em ordem alfabética de métodos HTTP no painel
+    operationsSorter: method
