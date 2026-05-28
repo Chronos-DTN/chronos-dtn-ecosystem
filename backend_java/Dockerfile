@@ -1,5 +1,5 @@
 # Por que: Estágio 1 - Build. Compila o projeto utilizando uma imagem Maven oficial rodando sobre Alpine para leveza.
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS builder
+FROM maven:3.9.11-eclipse-temurin-25 AS builder
 
 # Por que: Define o diretório de trabalho padrão dentro da máquina de construção do container.
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Por que: Estágio 2 - Runtime. Utiliza uma imagem JRE leve baseada em Alpine para minimizar a superfície de ataque e o tamanho da imagem de produção.
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 # Por que: Define o diretório onde a aplicação ficará instalada na imagem de produção.
 WORKDIR /app

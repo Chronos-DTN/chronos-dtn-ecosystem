@@ -24,10 +24,12 @@
     
     <!-- Por que: Configura variáveis do Maven, travando a versão do Java e dependências adicionais. -->
     <properties>
-        <!-- Por que: Usamos o Java 17 para aproveitar records imutáveis, switch expressions e suporte de longo prazo (LTS). -->
-        <java.version>17</java.version>
+        <!-- Por que: Usamos o Java 25 LTS para aproveitar records imutáveis, switch expressions, virtual threads e suporte de longo prazo (LTS). -->
+        <java.version>25</java.version>
         <!-- Por que: Versão estável e segura para a API de tokens JWT. -->
         <jjwt.version>0.11.5</jjwt.version>
+        <!-- Por que: Override necessário pois o BOM do Spring Boot 3.2.5 gerencia Lombok 1.18.30, que não suporta processamento de anotações no Java 25. -->
+        <lombok.version>1.18.38</lombok.version>
     </properties>
     
     <!-- Por que: Bloco que agrupa todas as bibliotecas necessárias para rodar o gateway de rede e finanças. -->

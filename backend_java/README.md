@@ -31,7 +31,7 @@ A solução atua como um **Gateway Financeiro** e gerenciador de filas **Store-a
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java 17**
+- **Java 25**
 - **Spring Boot 3.2.5**
 - **Spring Data JPA & Hibernate**
 - **Spring Security & JWT (Hmac256)**
@@ -43,7 +43,7 @@ A solução atua como um **Gateway Financeiro** e gerenciador de filas **Store-a
 
 ## 📥 Pré-requisitos de Execução
 
-- Ter o Java JDK 17 (ou superior) instalado.
+- Ter o Java JDK 25 (ou superior) instalado.
 - Ter o Maven instalado (ou utilizar o wrapper `./mvnw` se fornecido).
 
 ---
