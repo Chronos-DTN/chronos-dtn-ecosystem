@@ -1,29 +1,32 @@
-# ChronosDTN - Governança de Arquitetura e Engenharia de Software Espacial
+# 🏛️ Guia de Governança e Compliance Corporativo - ChronosDTN
 
-> **Guia de Governança Corporativa e Conformidade para a FIAP Global Solution**  
-> **Framework de Referência:** TOGAF v10 ADM (Architecture Development Method)  
-> **Objetivo:** Estabelecer diretrizes operacionais, conformidades técnicas e rastreabilidade da solução ChronosDTN.
+[![TOGAF v10](https://img.shields.io/badge/Framework-TOGAF_v10-blue?style=for-the-badge)](https://www.opengroup.org/togaf)
+[![ArchiMate](https://img.shields.io/badge/Modeling-ArchiMate_3.1-darkgreen?style=for-the-badge)](https://www.archimate.nl/)
+[![Bundle Protocol](https://img.shields.io/badge/RFC-9171-orange?style=for-the-badge)](https://tools.ietf.org/html/rfc9171)
 
----
-
-## 1. Visão Geral da Governança
-
-O desenvolvimento de sistemas de suporte à vida econômica extraterrestre — como o gateway financeiro e roteador espacial **ChronosDTN** — exige um nível de controle de qualidade e padronização muito superior aos sistemas de informação terrestres. Pequenos erros em protocolos de rede ou inconsistências no banco de dados podem resultar na perda definitiva de transações financeiras críticas sob enlaces espaciais instáveis.
-
-Por essa razão, adotamos o **TOGAF v10 ADM (Architecture Development Method)** como base conceitual para guiar todas as decisões de design de software e infraestrutura do projeto, garantindo que os objetivos de negócio dos consórcios mineradores lunares e a segurança transacional exigida pelos órgãos reguladores terrestres sejam atingidos de ponta a ponta.
+> **Manual de Governança Corporativa e Conformidade para a FIAP Global Solution.**  
+> Descreve as regras de qualidade, conformidade com o IETF Bundle Protocol, e a aplicação das fases ADM do TOGAF v10.
 
 ---
 
-## 2. A Estrutura do Ciclo ADM no ChronosDTN
+## 🚀 1. O Papel da Governança no Espaço Profundo
 
-O ciclo ADM do TOGAF foi percorrido de forma incremental pelas fases de desenvolvimento deste projeto:
+Sistemas bancários terrestres tradicionais dependem de comunicação permanente de baixa latência. No entanto, em um ambiente de economia espacial (ligando a Terra e a Lua), erros de processamento e inconsistências em transações de rádio-link podem resultar na perda definitiva de fundos e ativos corporativos.
+
+Por essa razão, adotamos o método **TOGAF v10 ADM (Architecture Development Method)** para direcionar todas as fases de construção do projeto, garantindo conformidade com padrões aeroespaciais (IETF/CCSDS) e regulamentações financeiras de segurança.
+
+---
+
+## 📁 2. A Estrutura do Ciclo ADM no ChronosDTN
+
+O ciclo ADM do TOGAF foi percorrido de forma incremental ao longo do desenvolvimento deste ecossistema:
 
 ```mermaid
 graph TD
     %% Por que: Representa a jornada de desenvolvimento do projeto mapeada sob o ciclo ADM do TOGAF v10.
     %% Por que: Nós representam as fases clássicas do TOGAF adaptadas ao contexto acadêmico e técnico.
 
-    F_PRE[Fase Preliminar: Configuração de Padrões e Diretrizes de Código] --> F_A[Fase A: Visão da Arquitetura e Mapeamento de Stakeholders]
+    F_PRE[Fase Preliminar: Diretrizes de Código e Padrões Sênior] --> F_A[Fase A: Visão da Arquitetura e Mapeamento de Stakeholders]
     F_A --> F_B[Fase B: Arquitetura de Negócio e Processos de Store-and-Forward]
     F_B --> F_C[Fase C: Arquitetura de Sistemas de Informação - Dados e Aplicação]
     F_C --> F_D[Fase D: Arquitetura de Tecnologia - RF Links, Contêineres e Rede Docker]
@@ -42,44 +45,28 @@ graph TD
 
 ### Detalhamento das Fases Aplicadas no Projeto:
 
-1. **Fase Preliminar**: Definição da stack tecnológica (Java Spring Boot, .NET 8/10, React Native, Oracle PL/SQL, Docker) e do escopo do ecossistema ChronosDTN.
-2. **Fase A (Visão de Arquitetura)**: Mapeamento de agentes reguladores, mineradores e agências aeroespaciais no documento [ARCHITECTURE_TOGAF.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/ARCHITECTURE_TOGAF.md).
-3. **Fase B (Arquitetura de Negócio)**: Mapeamento de fluxos transacionais tolerantes a falhas no espaço profundo, mudando o paradigma de conexões HTTP diretas para buffers de pacotes de store-and-forward.
-4. **Fase C (Arquitetura de Sistemas de Informação)**:
-   * **Arquitetura de Dados**: Implementação física do banco de dados relacional Oracle (tabelas de sincronia, bundles e transações) e estruturação do payload documental NoSQL (JSON).
-   * **Arquitetura de Aplicação**: Design do front-end mobile React Native, API corporativa Java (com autenticação JWT segura e HATEOAS) e API secundária C# em .NET para interoperabilidade.
-5. **Fase D (Arquitetura de Tecnologia)**: Dimensionamento dos enlaces físicos orbitais (frequência Ka-band e atenuação laser) e encapsulamento em contêineres Docker interconectados.
-6. **Fase G (Governança da Implementação)**: Scripts de validação (`verify_api.ps1`), planos de teste integrados e documentação do roteiro de execução em contêiner.
+1.  **Fase Preliminar**: Configuração do ambiente de desenvolvimento multiplataforma (Java, .NET, React Native) e adoção de práticas de comentários didáticos detalhados em todos os arquivos.
+2.  **Fase A (Visão de Arquitetura)**: Mapeamento de partes interessadas (Stakeholders) como agências espaciais, consórcios de mineração lunar, e auditores financeiros terrestres no documento principal de arquitetura.
+3.  **Fase B (Arquitetura de Negócio)**: Mapeamento de processos e transações assíncronas do modelo Store-and-Forward, eliminando dependências de respostas HTTP síncronas entre os corpos celestes.
+4.  **Fase C (Arquitetura de Sistemas de Informação)**:
+    *   *Dados*: Modelagem física das tabelas do Oracle DB (saldos, bundles e logs) e definição de payloads NoSQL JSON para enfileiramento de rádio.
+    *   *Aplicação*: Relação e responsabilidade de cada microserviço (Java REST API com HATEOAS, .NET Interoperabilidade com HAL JSON, e App Mobile Expo Router).
+5.  **Fase D (Arquitetura de Tecnologia)**: Dimensionamento dos enlaces físicos (Ka-Band e Laser), latências espaciais (1.28 segundos de propagação) e orquestração virtualizada por Docker Compose.
+6.  **Fase G (Governança da Implementação)**: Scripts automatizados de teste local, validações estáticas de tipos TypeScript (`npx tsc --noEmit`) e checagens de saúde em contêineres.
 
 ---
 
-## 3. Estrutura do Diretório de Governança
+## 📜 3. Documentos do Diretório de Governança
 
-Esta pasta de governança centraliza toda a especificação de arquitetura e compliance do ecossistema:
-
-*   **[ARCHITECTURE_TOGAF.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/ARCHITECTURE_TOGAF.md)**: O documento principal detalhando as fases de arquitetura corporativa do TOGAF v10, diagramas ArchiMate conceituais e a matriz de compliance com a RFC 9171 (Bundle Protocol v7).
-*   **[README.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/README.md)**: Este guia explicativo.
+*   **[ARCHITECTURE_TOGAF.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/ARCHITECTURE_TOGAF.md)**: Especificação formal da arquitetura corporativa do ChronosDTN, com diagramas estruturais ArchiMate (Mermaid) e a matriz de compliance com a RFC 9171 (Bundle Protocol v7).
+*   **[README.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/README.md)**: Este guia.
 
 ---
 
-## 4. Diretrizes de Qualidade e Compliance Técnico
+## 🔒 4. Diretrizes de Qualidade e Compliance Técnico
 
-Para garantir a evolução contínua da arquitetura, novos desenvolvedores e arquitetos que atuarem no projeto ChronosDTN devem respeitar os seguintes princípios de engenharia de software sênior:
+Para garantir a integridade da arquitetura, toda e qualquer alteração de código no ChronosDTN deve respeitar as seguintes premissas:
 
-1.  **Integridade de Dados Acima de Tudo (Princípio do Store-and-Forward)**:
-    *   Nenhuma operação financeira deve depender de conexões diretas.
-    *   Toda chamada de rede que cruza o ambiente espacial deve ser persistida localmente (banco relacional ou NoSQL documental) antes da transmissão física.
-2.  **Segurança e Validação Criptográfica Rigorosa**:
-    *   Não se processa nenhum pacote financeiro sem a verificação de hash SHA-256 e validação de assinatura digital de nó autorizado.
-    *   Controle de acesso por API deve usar JWT com escopos e roles limitadas (`ROLE_OPERATOR`).
-3.  **Princípio da Interoperabilidade**:
-    *   Qualquer microserviço adicionado ao ecossistema deve expor contratos HATEOAS (`HAL JSON`) para permitir a descoberta dinâmica de recursos.
-    *   Devem ser fornecidas implementações em ecossistemas distintos (ex: Java e .NET) para comprovar a viabilidade técnica multiplataforma dos canais de roteamento espacial.
-4.  **Auto-Suficiência da Documentação (Código Autodocumentado)**:
-    *   Cada linha de arquivo de configuração ou código fonte precisa ter comentários didáticos explicando o **porquê** de sua implementação, facilitando o onboarding de desenvolvedores juniores e a auditoria de segurança regulatória.
-
----
-
-> [!IMPORTANT]
-> **Acesso Rápido**:
-> Para consultar a especificação formal completa de cada fase e as matrizes de conformidade, leia o arquivo [ARCHITECTURE_TOGAF.md](file:///C:/Users/maico/.gemini/antigravity/scratch/chronos_dtn/governance/ARCHITECTURE_TOGAF.md).
+1.  **Garantia de Não-Duplicidade**: Transações espaciais remotas devem nascer em estado `PENDING` e os créditos associados devem ser retidos temporariamente na origem para mitigar o double spending no espaço profundo.
+2.  **Verificação Criptográfica**: Nenhum pacote (Bundle) financeiro deve ser liquidado no destino sem antes passar pela validação de integridade do checksum SHA-256 e assinatura digital de operador autorizado.
+3.  **Autoexplicabilidade (Regra Sênior)**: Toda linha de configuração de infraestrutura ou código de negócio deve possuir comentários didáticos explicando o **porquê** de sua existência, facilitando a auditabilidade de segurança e o onboarding do time.

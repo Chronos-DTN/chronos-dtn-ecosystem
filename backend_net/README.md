@@ -1,138 +1,68 @@
-# ChronosDTN Auxiliary API (.NET 10)
+# ⚡ ChronosDTN Auxiliary API (.NET 10)
 
-Ecosistema de gateway financeiro tolerante a falhas (DTN - Delay-Tolerant Networking) ligando a Terra à Lua. Esta é a API auxiliar desenvolvida em .NET 10 para o projeto acadêmico **FIAP Global Solution** (Economia Espacial).
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-blue?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
+[![EF Core](https://img.shields.io/badge/EF_Core-InMemory-purple?style=for-the-badge)](https://learn.microsoft.com/ef/core/)
+[![HAL JSON](https://img.shields.io/badge/Format-HAL_JSON-orange?style=for-the-badge)](https://stateless.co/hal_specification.html)
 
----
-
-## 🚀 Arquitetura e Visão Geral
-
-A API auxiliar do **ChronosDTN** atua como o nó secundário/terreno do gateway. Suas principais atribuições são:
-1. **Autenticação de Operadores**: Emissão de tokens JWT criptografados para garantir que apenas comandos assinados controlem os enlaces de rádio e as transações espaciais.
-2. **Buffer Store-and-Forward**: Fila local estruturada de pacotes (Bundles) para lidar com a latência de rádio (1.28 segundos de atraso da luz entre Terra e Lua) e janelas de contato intermitentes.
-3. **Liquidação Financeira e Reconciliação**: Controle transacional de saldos, permitindo débitos síncronos na conta do remetente e créditos assíncronos no destino assim que o pacote DTN é recebido e validado (integridade por hash SHA-256).
+> **Módulo Auxiliar de Interoperabilidade Multiplataforma.**  
+> API desenvolvida em .NET 10 atuando como nó de recepção e roteamento secundário terrestre no ecossistema ChronosDTN.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## 🚀 1. Arquitetura e Decisões de Design
 
-* **Runtime**: .NET 10.0 SDK
-* **Persistência**: Entity Framework Core InMemory (simulação rápida em memória sem necessidade de bancos relacionais locais pesados)
-* **Segurança**: Microsoft.AspNetCore.Authentication.JwtBearer (Assinatura simétrica com algoritmo HMAC SHA-256)
-* **Documentação**: Swashbuckle.AspNetCore (Swagger/OpenAPI v1 com suporte a injeção do cabeçalho de Authorization Bearer)
+O módulo .NET provê uma alternativa de comunicação e contingência multiplataforma. Ele compartilha das mesmas regras lógicas de roteamento espacial tolerante a falhas do ecossistema principal:
 
----
-
-## 🔐 Segurança e Autenticação
-
-Todas as rotas sob `/api/transactions` e `/api/bundles` exigem autenticação do operador espacial.
-
-* **Endpoint de Login**: `POST /api/auth/login`
-* **Credenciais Padrão**:
-  * **Usuário**: `operator`
-  * **Senha**: `space_dtn_2026`
-* **Formato do Token**: JWT Bearer anexado ao cabeçalho:
-  `Authorization: Bearer <seu_token_jwt>`
+1.  **Persistência em Memória (EF Core InMemory)**:  
+    Permite rodar simulações rápidas e limpas de transações e filas sem necessidade de configurar um banco Oracle ou SQL Server local dedicado no ambiente secundário.
+2.  **Mapeamento de Modelos por Fluent API**:  
+    As chaves primárias compostas do `Bundle` (`SourceNodeId` + `LocalSequenceId`) e as restrições relacionais são declaradas e validadas via Fluent API no `ChronosDbContext`, garantindo total paridade lógica com o Oracle DB da Fase 1.
+3.  **Contrato HAL JSON**:  
+    Todas as respostas REST da API seguem o formato de hipermídia **HAL JSON**, utilizando nós `_links` para expor a navegação de recursos de forma dinâmica para os clientes integradores.
+4.  **Tratamento de Exceções (RFC 7807)**:  
+    Um middleware intercepta erros internos e os encapsula no padrão da Web **RFC 7807 (ProblemDetails)**.
 
 ---
 
-## 🔗 Endpoints e HATEOAS (HAL JSON)
+## 🛠️ 2. Tecnologias Utilizadas
 
-Esta API implementa o nível 3 do modelo de maturidade de Richardson (HATEOAS) utilizando o formato HAL JSON (`_links` e `_embedded`).
-
-### 1. Autenticação
-* **POST `/api/auth/login`**
-  * **Request**:
-    ```json
-    {
-      "username": "operator",
-      "password": "space_dtn_2026"
-    }
-    ```
-  * **Response**:
-    ```json
-    {
-      "token": "eyJhbGciOi...",
-      "tokenType": "Bearer"
-    }
-    ```
-
-### 2. Transações
-* **GET `/api/transactions`** (Lista todas as transações com hiperlinks `self` e `transportBundle`)
-* **GET `/api/transactions/{id}`** (Obtém uma transação individual)
-* **POST `/api/transactions`** (Cria uma nova transação financeira)
-  * **Request**:
-    ```json
-    {
-      "sourceAccountId": 101,
-      "destAccountId": 201,
-      "amount": 5000.00,
-      "priority": 2
-    }
-    ```
-  * **Response (HATEOAS)**:
-    ```json
-    {
-      "transactionId": 1,
-      "bundleId": 1,
-      "sourceNodeId": 1,
-      "sourceAccountId": 101,
-      "destAccountId": 201,
-      "amount": 5000.0,
-      "settlementStatus": "PENDING",
-      "transactionTime": "2026-05-28T20:21:01.2713864Z",
-      "_links": {
-        "self": {
-          "href": "http://localhost:5056/api/transactions/1"
-        },
-        "transportBundle": {
-          "href": "http://localhost:5056/api/bundles/1/1"
-        }
-      }
-    }
-    ```
-
-### 3. Bundles (Pacotes DTN Store-and-Forward)
-* **GET `/api/bundles`** (Lista todos os bundles na fila local)
-* **GET `/api/bundles/{sourceNodeId}/{localSequenceId}`** (Busca um bundle individual usando a chave primária composta)
-* **POST `/api/bundles/transmit`** (Simula a abertura de janela de contato de rádio. Varre bundles em status `BUFFERED`, atualiza para `DELIVERED` e reconcilia as transações associadas para `SETTLED`).
+*   **Framework**: ASP.NET Core Web API em .NET 10.0.
+*   **Banco de Dados**: Entity Framework Core InMemory.
+*   **Segurança**: Autenticação JwtBearer (HMAC SHA-256).
+*   **Documentação**: Swashbuckle OpenAPI.
 
 ---
 
-## 🏃 Como Executar e Validar Localmente
+## 🏃 3. Como Executar
 
-### Pré-requisitos
-* **.NET 10.0 SDK** instalado na máquina.
+### 📋 3.1. Pré-requisitos
+*   **.NET 10.0 SDK** instalado.
 
-### Execução da API
-No terminal do Windows, acesse a pasta raiz da API e execute:
+### ⚙️ 3.2. Executar a API
+Abra o console do sistema na pasta do projeto C# e execute:
 ```bash
-cd backend_net/ChronosDtnNetApi
-dotnet build
+# Acessar a pasta do projeto
+cd backend_net/ChronosDtn.InteropApi
+
+# Restaurar dependências e rodar o servidor
 dotnet run
 ```
-A API será iniciada por padrão na porta `http://localhost:5056`. O Swagger UI estará disponível em:
-👉 [http://localhost:5056](http://localhost:5056)
-
-### Validação via Script Automatizado
-Disponibilizamos um script em PowerShell que faz todas as requisições, simulando o comportamento de ponta a ponta. 
-
-Na pasta `backend_net`, abra o terminal e execute:
-```powershell
-powershell -ExecutionPolicy Bypass -File verify_api.ps1
-```
-
-O script fará o login, registrará a transação cross-node (Terra para a Lua), listará a fila de bundles, disparará a transmissão de rádio-link e exibirá os dados finais de liquidação/entrega em formato JSON formatado.
+A API iniciará localmente respondendo por padrão no endereço: **`http://localhost:5056`**
 
 ---
 
-## 📂 Estrutura do Projeto
+## 🔌 4. Teste e Validação Automatizada
 
-* `Program.cs`: Inicialização e pipeline HTTP do ASP.NET Core (com Database Seed de nós, contas e links de rádio ativos).
-* `Data/`: `ChronosDbContext.cs` mapeando o banco em memória e as relações de chave composta.
-* `Models/`: Modelos com comentários didáticos em cada linha explicando o objetivo de cada propriedade.
-* `Services/`:
-  * `AuthService.cs`: Lógica de autenticação e validação do token JWT.
-  * `BundleService.cs`: Mecanismo de store-and-forward e transmissão por link físico.
-  * `TransactionService.cs`: Débitos em conta, serialização JSON e hashes de segurança.
-* `Middlewares/`: `ExceptionMiddleware.cs` transformando exceções não tratadas em objetos padronizados RFC 7807 (ProblemDetails).
-* `Controllers/`: Endpoints de API.
+Para simplificar a avaliação da banca, criamos um script em PowerShell (`verify_api.ps1`) que valida automaticamente o fluxo financeiro de ponta a ponta na API .NET:
+
+1.  Abra o terminal na pasta `backend_net`.
+2.  Execute o script ignorando a política de restrição local:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File verify_api.ps1
+    ```
+
+**O que o script faz**:
+*   Realiza o login de login do operador (`operator` / `space_dtn_2026`).
+*   Registra uma transferência internacional de créditos, que é enfileirada no buffer local como `BUFFERED` (Status `PENDING`).
+*   Dispara o comando de transmissão de link físico `/api/bundles/transmit`.
+*   Mostra os resultados finais comprovando que o bundle foi entregue (`DELIVERED`) e a transação liquidada (`SETTLED`).

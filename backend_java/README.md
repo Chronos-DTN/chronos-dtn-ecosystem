@@ -1,117 +1,84 @@
-# ChronosDTN - Core Gateway Financeiro (Java Spring Boot 3.x)
+# ☕ ChronosDTN - Core Gateway Financeiro (Java Spring Boot 3.x)
 
-Este diretório contém a API Principal e Core Engine do ecossistema **ChronosDTN**, projetada para rodar nas estações espaciais terrestres e lunares (Ex: Houston Ground Station e Artemis Base Alpha). 
+[![Java 21](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org)
+[![Spring Boot](https://img.shields.io/badge/spring_boot-3.2.5-brightgreen?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Lombok](https://img.shields.io/badge/Lombok-1.18.38-red?style=for-the-badge)](https://projectlombok.org)
 
-A solução atua como um **Gateway Financeiro** e gerenciador de filas **Store-and-Forward** em conformidade conceitual com o **Bundle Protocol (RFC 5050 / RFC 9171)** para redes tolerantes a atrasos (DTN).
-
----
-
-## 🚀 Arquitetura e Decisões de Design
-
-1. **JPA e Chave Composta Resiliente (`BundleId`)**:
-   Em redes espaciais distribuídas sem conexão de baixa latência em tempo real, as bases lunares não podem consultar sequenciadores de banco de dados centralizados na Terra para obter IDs. Por isso, a entidade `Bundle` adota uma chave primária composta (`BundleId`) contendo:
-   - `ID_NODE_SOURCE` (ID da Estação Operacional).
-   - `ID_BUNDLE` (Sequencial incremental gerado localmente na própria estação).
-   Essa combinação é globalmente exclusiva e evita colisões durante reconciliações posteriores.
-
-2. **Liquidação Financeira Diferida (DTN/Rádio)**:
-   - **Transação no mesmo nó**: Se a conta de origem e a de destino residem na mesma estação, a transação é liquidada imediatamente (`SETTLED`), atualizando os saldos na mesma hora e gerando um bundle com status `DELIVERED`.
-   - **Transação interplanetária**: Se a conta de destino reside em outro nó, a API debita o valor da conta de origem (evitando double spending) e enfileira um pacote com status `BUFFERED`. A transação fica marcada como `PENDING`.
-
-3. **Simulação de Handshake e Roteamento**:
-   Ao chamar o endpoint `/api/bundles/transmit`, o sistema busca janelas de contato de rádio ativas (`ST_LINK = 'UP'`) e despacha os bundles da fila correspondente, marcando-os como `DELIVERED`. Em seguida, o serviço de transações reconcilia e aplica os créditos nas contas de destino remotas, alterando as transações para `SETTLED`.
-
-4. **Tratamento Global de Erros (RFC 7807)**:
-   Exceções como `InsufficientFundsException` e `ResourceNotFoundException` são mapeadas via `@RestControllerAdvice` e retornam payloads padronizados com o formato de detalhes do problema da web (Problem Details).
-
-5. **Segurança JWT Stateless**:
-   Rotas financeiras operacionais exigem autenticação do operador via cabeçalho `Authorization: Bearer <JWT>`. A rota do console de banco H2 e a documentação do Swagger estão liberadas para simplificar o desenvolvimento.
+> **Módulo Central do Roteador Financeiro Espacial.**  
+> Gerencia a fila Store-and-Forward de pacotes e realiza a liquidação e reconciliação em banco relacional Oracle.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🚀 1. Decisões Arquiteturais e Padrões de Código
 
-- **Java 25**
-- **Spring Boot 3.2.5**
-- **Spring Data JPA & Hibernate**
-- **Spring Security & JWT (Hmac256)**
-- **Spring HATEOAS (Hypermedia Links)**
-- **Springdoc-OpenAPI & Swagger UI**
-- **Banco em Memória H2**
+1.  **Mapeamento de Chaves Primárias Compostas (`BundleId`)**:
+    Em redes interplanetárias que sofrem com latência de rádio severa, os nós na Lua não podem consultar de forma confiável geradores de sequências ou chaves automáticas na Terra. Por isso, a entidade `Bundle` utiliza um identificador composto (`BundleId`) com:
+    *   `ID_NODE_SOURCE` (ID da Estação Operadora Emissora).
+    *   `ID_BUNDLE` (Número sequencial incrementado e mantido localmente por nó).
+    Isso assegura que novos bundles possam ser criados de forma independente e assíncrona por qualquer antena sem risco de colisões de chave durante a reconciliação.
+
+2.  **Roteamento e Liquidação Diferida (DTN)**:
+    *   *Mesmo Nó (Local)*: Se as contas de origem e destino pertencem à mesma estação, a transferência de saldo é efetuada na mesma hora (`SETTLED`) em contexto ACID.
+    *   *Nós Distintos (Interplanetário)*: A API retém o valor da conta emissora na estação de origem para evitar gasto duplo (double spending), encapsula os dados transacionais em um Bundle com status `BUFFERED` e deixa a transação marcada como `PENDING` (Pendente).
+
+3.  **Simulação de Janelas de Contato**:
+    Ao chamar o endpoint `/api/bundles/transmit`, a API varre a tabela de enlaces orbitais (`TB_CHRONOS_LINK`). Se o status do link físico estiver ativo (`UP`), todos os pacotes em buffer são transmitidos, alterando seu estado para `DELIVERED`, e a API de destino processa a liquidação financeira nas contas remotas.
+
+4.  **Tratamento de Exceções (RFC 7807)**:
+    Caso ocorra saldo insuficiente ou contas inválidas, um manipulador global (`@RestControllerAdvice`) intercepta o erro e retorna uma resposta no padrão da Web **RFC 7807 (Problem Details)**, melhorando a experiência de depuração do cliente React Native.
 
 ---
 
-## 📥 Pré-requisitos de Execução
+## 🛠️ 2. Tecnologias e Configuração de Compilação
 
-- Ter o Java JDK 25 (ou superior) instalado.
-- Ter o Maven instalado (ou utilizar o wrapper `./mvnw` se fornecido).
+*   **Linguagem**: Java 21 (LTS).
+*   **Framework**: Spring Boot 3.2.5.
+*   **Persistência**: Spring Data JPA com Hibernate.
+*   **Processamento de Anotações**: Lombok `1.18.38` (configurado explicitamente sob o plugin `maven-compiler-plugin` no `pom.xml` para assegurar o funcionamento dos getters e setters no Java 21).
+*   **Hipermídia**: Spring HATEOAS (geração de links de hipermídia dinâmicos).
+*   **Segurança**: Spring Security com autenticação stateless baseada em tokens JWT.
 
 ---
 
-## 💻 Como Compilar e Executar
+## 🏃 3. Como Executar Sem Docker (Localmente)
 
-Execute os comandos abaixo na raiz do diretório `backend_java`:
+### 📋 3.1. Pré-requisitos
+*   **Java JDK 21** instalado.
+*   **Maven 3.8+** instalado.
+*   Instância local do banco de dados (por padrão, a API utiliza o H2 em memória se o profile de banco Docker não estiver ativado).
 
+### ⚙️ 3.2. Executar a Aplicação
+Abra o console do sistema na pasta `backend_java` e execute:
 ```bash
-# 1. Compilar o projeto
+# Compilar e baixar dependências
 mvn clean compile
 
-# 2. Executar testes e subir o servidor de desenvolvimento
+# Subir a aplicação Spring Boot
 mvn spring-boot:run
 ```
-
-O servidor inicializará na porta **8080** por padrão.
+A API subirá respondendo por padrão no endereço: **`http://localhost:8080`**
 
 ---
 
-## 📍 Endpoints e Rotas Disponíveis
+## 🔗 4. Resumo de Endpoints
 
-### 1. Autenticação Operacional (Pública)
+### Autenticação (Pública)
 *   `POST /api/auth/login`
-    *   **Payload de entrada (`LoginRequest`):**
-        ```json
-        {
-          "username": "operator",
-          "password": "space_dtn_2026"
-        }
-        ```
-    *   **Retorno (`TokenResponse`):** Retorna o JWT que deve ser enviado nas requisições protegidas.
+    *   *Payload*: `{"username": "operator", "password": "space_dtn_2026"}`
+    *   *Retorno*: Token JWT para inclusão no cabeçalho `Authorization: Bearer <token>`.
 
-### 2. Transações Financeiras (Protegido por JWT)
-*   `GET /api/transactions`: Lista todas as transações (incluindo links HATEOAS para o bundle de transporte).
-*   `GET /api/transactions/{id}`: Detalha uma transação por ID.
-*   `POST /api/transactions`: Solicita uma nova transferência de créditos interestelares.
-    *   **Payload de entrada (`TransactionRequest`):**
-        ```json
-        {
-          "sourceAccountId": 101,
-          "destAccountId": 201,
-          "amount": 2500.00,
-          "priority": 2
-        }
-        ```
+### Transações Financeiras (Protegidas)
+*   `POST /api/transactions`: Solicita nova transferência de créditos (enfileira se for remoto).
+*   `GET /api/transactions`: Lista as transações financeiras com links hipermídia.
+*   `GET /api/transactions/{id}`: Detalha transação por ID.
 
-### 3. Fila de Roteamento DTN (Protegido por JWT)
-*   `GET /api/bundles`: Consulta todos os pacotes em fila ou transmitidos.
-*   `GET /api/bundles/{sourceNodeId}/{localSequenceId}`: Detalha um bundle específico pela PK composta.
-*   `POST /api/bundles/transmit`: Simula a abertura de janelas de contato físico, transmitindo bundles e reconciliando transações pendentes no destino.
+### Roteamento DTN (Protegidas)
+*   `GET /api/bundles`: Lista bundles em fila.
+*   `POST /api/bundles/transmit`: Simula a ativação de rádio orbital, forçando o tráfego dos pacotes da fila Store-and-Forward e a liquidação no destino.
 
 ---
 
-## 📊 Carga Inicial de Dados (Seed Automático)
+## 🔍 5. Depuração e OpenAPI
 
-Para permitir testes imediatos em ambiente de desenvolvimento, a API popula o H2 automaticamente na inicialização com os seguintes dados:
-
-- **Nó 1 (Houston Ground Station)** - Estação Física na Terra (ID: 1).
-- **Nó 2 (Artemis Base Alpha)** - Estação Física na Lua (ID: 2).
-- **Conta 101 (Terra)** - Titular: "Houston Ground Station Account" | Saldo: $500,000.00 USD.
-- **Conta 201 (Lua)** - Titular: "Shackleton Mining Corp Account" | Saldo: $150,000.00 LUN.
-- **Conta 202 (Lua)** - Titular: "Lunar Habitat Utilities Account" | Saldo: $25,000.00 LUN.
-- **Link 1 (Terra -> Lua)** - Janela de rádio ativa programada com latência real de ~1.28 segundos.
-
----
-
-## 🔍 Ferramentas de Monitoramento e Testes
-
-- **Console do H2**: Acesse `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:chronosdb`, User: `sa`, Senha em branco).
-- **Swagger UI (OpenAPI 3.0)**: Acesse `http://localhost:8080/swagger-ui.html` para testar os endpoints interativamente.
+*   **Swagger OpenAPI UI**: Acesse **`http://localhost:8080/swagger-ui/index.html`** para testar os endpoints interativamente.
+*   **Console do Banco H2**: Acesse `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:chronosdb`, Usuário: `sa`, Senha em branco) se rodando no modo standalone local.
