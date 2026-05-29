@@ -24,8 +24,8 @@
     
     <!-- Por que: Configura variáveis do Maven, travando a versão do Java e dependências adicionais. -->
     <properties>
-        <!-- Por que: Usamos o Java 25 LTS para aproveitar records imutáveis, switch expressions, virtual threads e suporte de longo prazo (LTS). -->
-        <java.version>25</java.version>
+        <!-- Por que: Usamos o Java 21 LTS para aproveitar records imutáveis, switch expressions, virtual threads e suporte de longo prazo (LTS). -->
+        <java.version>21</java.version>
         <!-- Por que: Versão estável e segura para a API de tokens JWT. -->
         <jjwt.version>0.11.5</jjwt.version>
         <!-- Por que: Override necessário pois o BOM do Spring Boot 3.2.5 gerencia Lombok 1.18.30, que não suporta processamento de anotações no Java 25. -->
@@ -133,6 +133,28 @@
     <!-- Por que: Define o plugin de build do Maven para empacotamento correto de JARs executáveis. -->
     <build>
         <plugins>
+            <!-- Por que: Adiciona o compilador do Maven para configurar processamento de anotações do Lombok. -->
+            <plugin>
+                <!-- Por que: Define o grupo do plugin de compilação oficial. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <!-- Por que: Define o ID do artefato do plugin de compilação. -->
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- Por que: Configuração do plugin. -->
+                <configuration>
+                    <!-- Por que: Mapeia caminhos dos processadores de anotação na compilação. -->
+                    <annotationProcessorPaths>
+                        <!-- Por que: Define o caminho do processador de anotações do Lombok. -->
+                        <path>
+                            <!-- Por que: Grupo do Lombok. -->
+                            <groupId>org.projectlombok</groupId>
+                            <!-- Por que: Artefato do Lombok. -->
+                            <artifactId>lombok</artifactId>
+                            <!-- Por que: Versão do Lombok declarada nas propriedades. -->
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <!-- Por que: Empacota a aplicação Spring Boot em um fat jar contendo todas as dependências. -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
