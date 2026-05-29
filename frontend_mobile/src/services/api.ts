@@ -63,7 +63,8 @@ export const getApiConfig = () => {
 
 // Por que: Registra um interceptor de requisição para injetar o cabeçalho Authorization Bearer JWT.
 api.interceptors.request.use(
-  (config) => {
+  // Por que: Recebe o objeto config com anotação explícita de tipo.
+  (config: any) => {
     // Por que: Se houver um token JWT cacheado, injeta-o na requisição de saída.
     if (cachedToken) {
       // Por que: Atribui a propriedade Authorization no formato padrão OAuth2/JWT.
@@ -72,7 +73,8 @@ api.interceptors.request.use(
     // Por que: Retorna a configuração modificada.
     return config;
   },
-  (error) => {
+  // Por que: Recebe o objeto de erro com anotação explícita.
+  (error: any) => {
     // Por que: Propaga o erro caso a preparação da requisição falhe.
     return Promise.reject(error);
   }
@@ -80,7 +82,8 @@ api.interceptors.request.use(
 
 // Por que: Registra um interceptor de resposta para simular o atraso eletromagnético da distância Terra-Lua (~1.28s).
 api.interceptors.response.use(
-  async (response) => {
+  // Por que: Recebe a resposta de sucesso com anotação explícita.
+  async (response: any) => {
     // Por que: Se a simulação de latência estiver ativa, introduz um atraso artificial.
     if (cachedSimulateLatency) {
       // Por que: Aguarda 1280 milissegundos para emular o tempo real de propagação do sinal.
@@ -89,7 +92,8 @@ api.interceptors.response.use(
     // Por que: Retorna a resposta original.
     return response;
   },
-  async (error) => {
+  // Por que: Recebe a falha física com anotação explícita.
+  async (error: any) => {
     // Por que: Se a simulação estiver ativa e houver erro de rede, também simula o atraso de propagação do erro.
     if (cachedSimulateLatency) {
       // Por que: Aguarda os mesmos 1280 milissegundos da física de rádio.

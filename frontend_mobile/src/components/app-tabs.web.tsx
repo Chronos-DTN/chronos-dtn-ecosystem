@@ -17,15 +17,38 @@ import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
+    // Por que: Componente de Abas do Expo Router que controla a pilha de telas.
     <Tabs>
+      {/* Por que: Slot interno que renderiza o conteúdo da página ativa. */}
       <TabSlot style={{ height: '100%' }} />
+      {/* Por que: Contêiner de lista que agrupa os botões de seleção de abas. */}
       <TabList asChild>
+        {/* Por que: Menu customizado horizontal com cantos circulares Apple-style. */}
         <CustomTabList>
-          <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+          {/* Por que: Gatilho que aponta para a rota index (Home/Dashboard). */}
+          <TabTrigger name="index" href="/" asChild>
+            {/* Por que: Botão de clique estilizado para a Home. */}
+            <TabButton>Painel</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
+          {/* Por que: Gatilho que aponta para a rota de transferências. */}
+          <TabTrigger name="transaction" href="/transaction" asChild>
+            {/* Por que: Botão de clique estilizado para a transferência de fundos. */}
+            <TabButton>Transferir</TabButton>
+          </TabTrigger>
+          {/* Por que: Gatilho que aponta para a rota de fila DTN. */}
+          <TabTrigger name="bundles" href="/bundles" asChild>
+            {/* Por que: Botão de clique estilizado para o buffer local. */}
+            <TabButton>Fila DTN</TabButton>
+          </TabTrigger>
+          {/* Por que: Gatilho que aponta para a rota de rede. */}
+          <TabTrigger name="network" href="/network" asChild>
+            {/* Por que: Botão de clique estilizado para telemetria de rádio. */}
+            <TabButton>Rede</TabButton>
+          </TabTrigger>
+          {/* Por que: Gatilho que aponta para a rota de console e parametrização. */}
+          <TabTrigger name="settings" href="/settings" asChild>
+            {/* Por que: Botão de clique estilizado para as configurações. */}
+            <TabButton>Console</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -54,8 +77,9 @@ export function CustomTabList(props: TabListProps) {
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
+        {/* Por que: Texto identificador do painel operacional do gateway espacial. */}
         <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
+          ChronosDTN NCC
         </ThemedText>
 
         {props.children}

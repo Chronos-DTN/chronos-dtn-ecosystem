@@ -1,14 +1,69 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 // Por que: Importa componentes de temas e roteador padrão do Expo.
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-// Por que: Importa utilitário de leitura do esquema de cores do aparelho (Light/Dark).
-import { useColorScheme } from 'react-native';
+// Por que: Importa utilitário de leitura do esquema de cores do aparelho (Light/Dark) e componente de Alerta nativo.
+import { useColorScheme, Alert } from 'react-native';
 
 // Por que: Importa o componente animado de Splash e o utilitário de navegação Web/Native.
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+// Por que: Importa o componente que define as abas de navegação principal.
 import AppTabs from '@/components/app-tabs';
+// Por que: Importa a tela de autenticação unificada Apple-style.
+import AuthScreen from '@/components/AuthScreen';
 // Por que: Importa a instância configurada do Axios para atualizar a URL base de chamadas.
 import { api, setAuthToken } from '@/services/api';
+
+// Por que: Mapeamento de caracteres regulamentares Base64 para decodificação universal.
+const b64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+// Por que: Função de decodificação Base64 em JS puro compatível com React Native e navegadores.
+function base64Decode(input: string): string {
+  // Por que: Remove caracteres de padding '=' do final da string.
+  const str = input.replace(/=+$/, '');
+  // Por que: Variável de saída para a string decodificada.
+  let output = '';
+  // Por que: Validação do tamanho do bloco codificado.
+  if (str.length % 4 === 1) return '';
+  // Por que: Varredura bit-a-bit dos caracteres codificados.
+  for (
+    let bc = 0, bs = 0, buffer, idx = 0;
+    (buffer = str.charAt(idx++));
+    ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+      bc++ % 4) ? (output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)))) : 0
+  ) {
+    // Por que: Encontra a posição do caractere no alfabeto Base64.
+    buffer = b64chars.indexOf(buffer);
+  }
+  // Por que: Retorna a string descriptografada.
+  return output;
+}
+
+// Por que: Função auxiliar que destrincha o payload de claims de um token JWT.
+function decodeJwt(token: string): any {
+  try {
+    // Por que: Split no token usando ponto para extrair [Header, Payload, Signature].
+    const parts = token.split('.');
+    // Por que: Se não houver 3 partes, o token está malformado.
+    if (parts.length !== 3) return null;
+    // Por que: O payload é a segunda parte (índice 1).
+    const payload = parts[1];
+    // Por que: Converte caracteres base64url para base64 padrão.
+    let base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    // Por que: Preenche com padding '=' se necessário.
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    // Por que: Decodifica a string base64.
+    const jsonStr = base64Decode(base64);
+    // Por que: Transforma em objeto Javascript.
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    // Por que: Exibe erro se o parse falhar.
+    console.error('Erro de decodificação JWT:', e);
+    // Por que: Retorna nulo.
+    return null;
+  }
+}
 
 // Por que: Define a interface do Operator obtido a partir do Token.
 export interface OperatorInfo {
@@ -82,10 +137,58 @@ export default function TabLayout() {
     setToken(null);
   };
 
+  // Por que: Trata o sucesso da autenticação decodificando as claims do token JWT.
+  const handleAuthSuccess = (newToken: string) => {
+    // Por que: Grava o token no estado local e nos headers Axios.
+    setToken(newToken);
+    // Por que: Converte o payload de base64 para dados legíveis.
+    const decoded = decodeJwt(newToken);
+    if (decoded) {
+      // Por que: Popula as propriedades do operador logado.
+      setOperator({
+        username: decoded.sub || '',
+        nodeId: Number(decoded.node_id) || 1,
+        nodeName: decoded.node_name || 'Central Gateway',
+        role: decoded.role || 'ROLE_OPERATOR',
+      });
+      // Por que: Modifica o estado para liberar o acesso às telas do app.
+      setIsAuthenticated(true);
+    } else {
+      // Por que: Alerta em caso de token inválido.
+      Alert.alert('Erro operacional', 'Falha ao decodificar a credencial de segurança.');
+    }
+  };
+
   // Por que: Inicializa o baseURL do Axios na montagem do layout.
   useEffect(() => {
     api.defaults.baseURL = gatewayUrl;
   }, []);
+
+  // Por que: Se o usuário não estiver autenticado, exibe a tela de login/cadastro bloqueando o restante.
+  if (!isAuthenticated) {
+    return (
+      <AppContext.Provider
+        value={{
+          gatewayUrl,
+          setGatewayUrl,
+          simulateLatency,
+          setSimulateLatency,
+          isAuthenticated,
+          setIsAuthenticated,
+          token,
+          setToken,
+          operator,
+          setOperator,
+          logout,
+        }}
+      >
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AnimatedSplashOverlay />
+          <AuthScreen onSuccess={handleAuthSuccess} />
+        </ThemeProvider>
+      </AppContext.Provider>
+    );
+  }
 
   return (
     // Por que: Provê as propriedades do contexto para toda a árvore de navegação abaixo.

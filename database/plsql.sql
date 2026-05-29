@@ -431,3 +431,5 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Erro na rotina cambial de contas lunares: ' || SQLERRM);
 END;
 /
+
+exit;

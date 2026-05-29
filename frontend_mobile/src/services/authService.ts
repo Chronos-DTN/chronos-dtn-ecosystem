@@ -31,6 +31,23 @@ export const authService = {
     return data;
   },
 
+  // Por que: Função assíncrona para registrar um novo operador no banco de dados.
+  register: async (registerData: {
+    // Por que: Nome identificador exclusivo para login do operador.
+    username: string;
+    // Por que: Senha em texto puro a ser codificada via hash BCrypt no backend.
+    password: string;
+    // Por que: Nome real completo do operador.
+    fullName: string;
+    // Por que: Código numérico associando a base operacional (1 = Terra, 2 = Lua).
+    nodeId: number;
+  }): Promise<string> => {
+    // Por que: Dispara requisição HTTP POST contendo o payload estruturado para cadastro.
+    const response = await api.post<string>('/api/auth/register', registerData);
+    // Por que: Retorna o corpo da mensagem de texto de confirmação de cadastro do Spring Boot.
+    return response.data;
+  },
+
   // Por que: Função para limpar o estado de autenticação (logout).
   logout: async (): Promise<void> => {
     // Por que: Remove o token JWT cacheado na instância do Axios.

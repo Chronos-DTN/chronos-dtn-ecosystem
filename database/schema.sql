@@ -76,7 +76,6 @@ CREATE TABLE TB_CHRONOS_NODE (
     DS_LOCATION VARCHAR2(50) NOT NULL,
     -- Por que: Controla o estado de operação (ACTIVE, INACTIVE ou DEGRADED).
     ST_NODE VARCHAR2(20) NOT NULL,
-    
     -- Por que: Define a chave primária da tabela para busca indexada e integridade da entidade.
     CONSTRAINT PK_CHRONOS_NODE PRIMARY KEY (ID_NODE),
     -- Por que: Garante que não teremos nomes de nós idênticos, preservando a legibilidade.
@@ -107,7 +106,6 @@ CREATE TABLE TB_CHRONOS_LINK (
     VL_LATENCY_SECONDS NUMBER(8,3) NOT NULL,
     -- Por que: Estado operacional instantâneo (UP, DOWN, SCHEDULED).
     ST_LINK VARCHAR2(20) NOT NULL,
-    
     -- Por que: Define a PK da tabela de janelas de contato.
     CONSTRAINT PK_CHRONOS_LINK PRIMARY KEY (ID_LINK),
     -- Por que: Integridade referencial vinculando o nó emissor.
@@ -140,7 +138,6 @@ CREATE TABLE TB_CHRONOS_ACCOUNT (
     VL_BALANCE NUMBER(15,2) NOT NULL,
     -- Por que: Sigla monetária para operações internacionais/interplanetárias (ex: USD, LUN).
     NM_CURRENCY VARCHAR2(10) NOT NULL,
-    
     -- Por que: Define a chave primária da conta.
     CONSTRAINT PK_CHRONOS_ACCOUNT PRIMARY KEY (ID_ACCOUNT),
     -- Por que: Associa a conta ao seu nó de liquidação local na rede espacial.
@@ -173,7 +170,6 @@ CREATE TABLE TB_CHRONOS_BUNDLE (
     DT_CREATED TIMESTAMP NOT NULL,
     -- Por que: Tempo máximo de vida útil (Time To Live). Após este prazo, o bundle é expurgado.
     DT_EXPIRY TIMESTAMP NOT NULL,
-    
     -- Por que: Chave primária da tabela de controle do buffer DTN.
     CONSTRAINT PK_CHRONOS_BUNDLE PRIMARY KEY (ID_BUNDLE),
     -- Por que: Referência ao nó de origem da rede.
@@ -208,7 +204,6 @@ CREATE TABLE TB_CHRONOS_TRANSACTION (
     DT_TRANSACTION TIMESTAMP NOT NULL,
     -- Por que: Status de conciliação bancária espacial (PENDING, SETTLED, REJECTED).
     ST_SETTLEMENT VARCHAR2(20) NOT NULL,
-    
     -- Por que: Define a chave primária da transação financeira.
     CONSTRAINT PK_CHRONOS_TRANSACTION PRIMARY KEY (ID_TRANSACTION),
     -- Por que: Integridade referencial ligando a transação ao seu meio de transporte espacial (Bundle).
@@ -241,7 +236,6 @@ CREATE TABLE TB_CHRONOS_SYNC_LOG (
     QT_ERRORS NUMBER(6) NOT NULL,
     -- Por que: Estado final da rotina de sincronização (SUCCESS, PARTIAL, FAILED).
     ST_SYNC VARCHAR2(20) NOT NULL,
-    
     -- Por que: PK do log de auditoria.
     CONSTRAINT PK_CHRONOS_SYNC_LOG PRIMARY KEY (ID_LOG),
     -- Por que: Link associado ao log.
@@ -270,7 +264,6 @@ CREATE TABLE TB_CHRONOS_OPERATOR (
     NM_FULLNAME VARCHAR2(100) NOT NULL,
     -- Por que: Vínculo opcional ao nó (ex: se o operador trabalha em Houston).
     ID_NODE NUMBER(10) NULL,
-    
     -- Por que: Define a chave primária.
     CONSTRAINT PK_CHRONOS_OPERATOR PRIMARY KEY (ID_OPERATOR),
     -- Por que: Garante nomes de login exclusivos.
@@ -293,3 +286,5 @@ CREATE INDEX IDX_CHRONOS_BUNDLE_ROUTING ON TB_CHRONOS_BUNDLE (ST_TRANSMISSION, N
 
 -- Por que: Facilita a auditoria de transações não conciliadas de alto valor.
 CREATE INDEX IDX_CHRONOS_TX_PENDING ON TB_CHRONOS_TRANSACTION (ST_SETTLEMENT, VL_AMOUNT);
+
+exit;

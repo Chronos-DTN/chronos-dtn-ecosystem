@@ -3,6 +3,7 @@
 -- PROPÓSITO: Popular a base com 86 registros de teste simulando a rede espacial.
 -- AUTOR: Arquiteto de Sistemas Principal & Engenheiro de Software Sênior
 -- =============================================================================
+SET DEFINE OFF;
 
 -- Limpa registros existentes para permitir reinicialização do script de testes
 DELETE FROM TB_CHRONOS_SYNC_LOG;
@@ -344,3 +345,5 @@ VALUES ('operator', '$2a$10$GVDCmguROYAdcUp/pv7iEe/paZ1AY2NV1sveE01Kzhe54ZvJVc0j
 
 -- Confirmação da gravação de todas as transações mocks no banco
 COMMIT;
+
+exit;
