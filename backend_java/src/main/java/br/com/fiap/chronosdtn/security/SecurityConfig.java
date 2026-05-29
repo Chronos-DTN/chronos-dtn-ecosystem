@@ -41,8 +41,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             // Por que: Configura as permissões de acesso às rotas (Endpoints).
             .authorizeHttpRequests(auth -> auth
-                // Por que: Permite acesso público ao endpoint de autenticação (login).
-                .requestMatchers("/api/auth/login").permitAll()
+                // Por que: Permite acesso público ao endpoint de login e cadastro.
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                 // Por que: Libera a documentação interativa Swagger/OpenAPI e console do H2.
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**").permitAll()
                 // Por que: Exige autenticação de operador para todas as rotas operacionais do ecossistema financeiro.

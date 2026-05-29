@@ -10,6 +10,7 @@ DELETE FROM TB_CHRONOS_TRANSACTION;
 DELETE FROM TB_CHRONOS_BUNDLE;
 DELETE FROM TB_CHRONOS_ACCOUNT;
 DELETE FROM TB_CHRONOS_LINK;
+DELETE FROM TB_CHRONOS_OPERATOR;
 DELETE FROM TB_CHRONOS_NODE;
 
 -- =============================================================================
@@ -336,6 +337,10 @@ VALUES (5009, 2, TO_TIMESTAMP('2026-05-28 15:10:00', 'YYYY-MM-DD HH24:MI:SS'), 6
 -- Por que: Nova tentativa no Link 6 que falhou anteriormente. Parcial, conseguiu passar 2 bundles.
 INSERT INTO TB_CHRONOS_SYNC_LOG (ID_LOG, ID_LINK, DT_SYNC, QT_BUNDLES_SENT, QT_ERRORS, ST_SYNC)
 VALUES (5010, 6, TO_TIMESTAMP('2026-05-28 12:00:00', 'YYYY-MM-DD HH24:MI:SS'), 2, 2, 'PARTIAL');
+
+-- Por que: Cadastra o operador padrão 'operator' com a senha 'space_dtn_2026' criptografada por BCrypt para testes locais do container.
+INSERT INTO TB_CHRONOS_OPERATOR (NM_USERNAME, TX_PASSWORD, NM_FULLNAME, ID_NODE)
+VALUES ('operator', '$2a$10$GVDCmguROYAdcUp/pv7iEe/paZ1AY2NV1sveE01Kzhe54ZvJVc0jq', 'Default Operator', 1);
 
 -- Confirmação da gravação de todas as transações mocks no banco
 COMMIT;

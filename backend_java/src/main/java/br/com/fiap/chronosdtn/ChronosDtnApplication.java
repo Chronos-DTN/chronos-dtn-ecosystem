@@ -31,7 +31,9 @@ public class ChronosDtnApplication {
     @Bean
     public CommandLineRunner seedDatabase(NodeRepository nodeRepository,
                                          AccountRepository accountRepository,
-                                         LinkRepository linkRepository) {
+                                         LinkRepository linkRepository,
+                                         OperatorRepository operatorRepository,
+                                         org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         return args -> {
             // Por que: Cadastra o Nó 1 (Estação Terrestre de Houston) para simular o gateway da Terra.
             Node houstonNode = new Node(1L, "Houston Ground Station", "Terra - EUA", "ACTIVE");
@@ -65,6 +67,14 @@ public class ChronosDtnApplication {
                     "UP" // Por que: Status ativo.
             );
             linkRepository.save(activeLink);
+
+            // Por que: Cadastra o operador padrão 'operator' com a senha 'space_dtn_2026' criptografada por BCrypt para testes de login.
+            Operator defaultOperator = new Operator();
+            defaultOperator.setUsername("operator");
+            defaultOperator.setPassword(passwordEncoder.encode("space_dtn_2026"));
+            defaultOperator.setFullName("Default System Operator");
+            defaultOperator.setNode(houstonNode);
+            operatorRepository.save(defaultOperator);
         };
     }
 }
