@@ -88,7 +88,7 @@ sequenceDiagram
     actor Operador as Operador Lunar (Base Artemis)
     participant Mobile as App React Native (NCC)
     participant MoonGW as Gateway Lunar (Java/Oracle)
-    participant Link as Enlace Espacial (Ka-Band RF)
+    participant RF_Link as Enlace Espacial (Ka-Band RF)
     participant EarthGW as Gateway Terrestre (Houston Station)
 
     Operador->>Mobile: Inicia Envio de Créditos (LUN)
@@ -99,14 +99,14 @@ sequenceDiagram
     Note over MoonGW: Transação em Buffer local (Store-and-Forward)
     
     rect rgb(20, 20, 35)
-        Note over Link: Link de Comunicação OFFLINE (Sem linha de visada)
+        Note over RF_Link: Link de Comunicação OFFLINE (Sem linha de visada)
         MoonGW->>MoonGW: Retém Bundle na tabela TB_CHRONOS_BUNDLE
     end
 
     rect rgb(10, 35, 20)
-        Note over Link: Link Físico Conecta (Janela de Contato UP)
-        MoonGW->>Link: Transmite Bundle serializado criptograficamente
-        Link->>EarthGW: Recebe dados após latência orbital (~1.28s)
+        Note over RF_Link: Link Físico Conecta (Janela de Contato UP)
+        MoonGW->>RF_Link: Transmite Bundle serializado criptograficamente
+        RF_Link->>EarthGW: Recebe dados após latência orbital (~1.28s)
     end
 
     Note over EarthGW: Verifica integridade do Payload (Hash SHA-256)
